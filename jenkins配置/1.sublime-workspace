@@ -1,0 +1,227 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"intsall",
+				"Package Control: Install Package"
+			],
+			[
+				"align",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/D/用户目录/我的文档/GitHub/lslmybook/nginx配置/1.nginx的安装文件/1.nginx的安装",
+		"/D/用户目录/我的文档/GitHub/lslmybook/nginx配置/1.nginx的安装文件/2.nginx开机启动配置文件",
+		"/D/用户目录/我的文档/GitHub/lslmybook/nginx配置/README.md",
+		"/D/用户目录/我的文档/GitHub/lslmybook/nginx配置/4.nginx的服务器搭建/keepalived.conf",
+		"/D/用户目录/我的文档/GitHub/lslmybook/jenkins配置/1.jenkins的安装",
+		"/D/用户目录/我的文档/GitHub/lslmybook/jenkins配置/owllook项目安装",
+		"/E/dnf私服/地下城与勇士/DNF_TW.cfg",
+		"/C/Users/Administrator/Desktop/新建文件夹/M综合工具4.10终极版_se.exe",
+		"/C/Users/Administrator/Desktop/新建文件夹/DNF.mdb",
+		"/C/Users/Administrator/AppData/Local/Temp/scp03018/home/neople/game/cfg/cain02.cfg",
+		"/C/Users/Administrator/AppData/Local/Temp/scp38168/home/neople/game/cfg/cain01.cfg",
+		"/C/Users/Administrator/Desktop/mysql/itemshop/5018.shp",
+		"/C/Users/Administrator/Desktop/mysql/Script.pvf",
+		"/D/用户目录/我的文档/GitHub/lsl-project/1.level 1/搭建wordpress",
+		"/D/用户目录/我的文档/GitHub/lsl-project/4.level 4/jenkins+docker+k8s",
+		"/C/Users/Administrator/Desktop/home/neople/bridge/df_bridge_r",
+		"/E/dnf私服/dnf镜像/hosts",
+		"/C/Users/Administrator/AppData/Local/Temp/Rar$DIa0.484/hosts",
+		"/D/用户目录/我的文档/GitHub/ng-configuration/nginx.conf",
+		"/D/用户目录/我的文档/GitHub/ng-configuration/README.md",
+		"/D/用户目录/我的文档/GitHub/ng-configuration/nginx的安装",
+		"/D/用户目录/我的文档/GitHub/ng-configuration/1.nginx的安装文件/nginx的安装",
+		"/D/用户目录/我的文档/GitHub/ng-configuration/1.nginx的安装文件/nginx开机启动配置文件",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/SideBarEnhancements/Open With/Side Bar.sublime-menu",
+		"/C/Users/Administrator/Desktop/文件/下载文件",
+		"/C/Users/Administrator/Desktop/文件/nginx/nginx中遇见问题",
+		"/C/Users/Administrator/Desktop/文件/nginx/nginx开机启动配置文件",
+		"/C/Users/Administrator/Desktop/文件/交换机",
+		"/E/zabbix/conf/zabbix_agentd.win.conf",
+		"/C/Users/Administrator/Desktop/文件/学习笔记",
+		"/E/共享/监控/conf/zabbix_agentd.win.conf",
+		"/C/Users/Administrator/Desktop/文件/源码编译安装",
+		"/C/Users/Administrator/Desktop/nginx.conf",
+		"/C/Users/Administrator/Desktop/google",
+		"/E/音乐文件/新建文本文档.txt",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/SublimeCodeIntel/Default (Windows).sublime-mousemap",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-mousemap",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/SublimeCodeIntel.sublime-settings",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/Package Control.sublime-settings",
+		"/C/Users/Administrator/Desktop/nginx开机启动配置文件",
+		"/C/Users/Administrator/Desktop/学习笔记",
+		"/C/Users/Administrator/Desktop/交换机",
+		"/C/Users/Administrator/AppData/Local/Google/Chrome/User Data/Default/Secure Preferences",
+		"/D/用户目录/下载/index.php",
+		"/C/Users/Administrator/AppData/Local/Google/Chrome/User Data/Default/Preferences",
+		"/C/Program Files (x86)/Google/Chrome/Application/master_preferences"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 104.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 36.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/Python/Python.sublime-build",
+	"project": "1.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
