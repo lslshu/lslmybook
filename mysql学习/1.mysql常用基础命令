@@ -1,0 +1,36 @@
+1.使用帮助信息
+
+登陆数据库就不介绍了哦
+比如说想做创建的数据库的操作，不知道命令，就可以查看帮助信息
+
+mysql> help create;
+Many help items for your request exist.
+To make a more specific request, please type 'help <item>',
+where <item> is one of the following
+topics:
+   CREATE DATABASE   #最简单的创建命令
+   CREATE EVENT
+   CREATE FUNCTION
+   CREATE FUNCTION UDF
+   CREATE INDEX
+   CREATE LOGFILE GROUP
+   CREATE PROCEDURE
+   CREATE SERVER
+   CREATE TABLE
+   CREATE TABLESPACE
+   CREATE TRIGGER
+   CREATE USER
+   CREATE VIEW
+   SHOW
+   SHOW CREATE DATABASE
+   SHOW CREATE EVENT
+   SHOW CREATE FUNCTION
+   SHOW CREATE PROCEDURE
+   SHOW CREATE TABLE
+   SPATIAL
+
+   2.创建，删除，查看数据库
+   
+   mysql> create database test_data;
+   #创建默认字符集的数据库（默认是拉丁字符集）
+   Query OK, 1 row affected (0.02 sec)
