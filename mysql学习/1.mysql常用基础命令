@@ -34,3 +34,186 @@ topics:
    mysql> create database test_data;
    #创建默认字符集的数据库（默认是拉丁字符集）
    Query OK, 1 row affected (0.02 sec)
+   mysql> show databases like 'test%';
++------------------+
+| Database (test%) |
++------------------+
+| test             |
+| test_date        |
++------------------+
+2 rows in set (0.00 sec)
+
+创建gbk字符集的数据库
+mysql> create database test_gbk DEFAULT CHARACTER SET gbk COLLATE gbk_chinese_ci;
+Query OK, 1 row affected (0.01 sec)
+
+查看创建数据库的语句
+mysql> show create database test_gbk;
++----------+------------------------------------------------------------------+
+| Database | Create Database                                                  |
++----------+------------------------------------------------------------------+
+| test_gbk | CREATE DATABASE `test_gbk` /*!40100 DEFAULT CHARACTER SET gbk */ |
++----------+------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+删除数据库
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| RUNOOB             |
+| mysql              |
+| performance_schema |
+| test               |
+| test_date          |
+| test_gbk           |
++--------------------+
+7 rows in set (0.00 sec)
+
+mysql> drop database test_date;
+Query OK, 0 rows affected (0.02 sec)
+
+3.连接数据库 
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| RUNOOB             |
+| mysql              |
+| performance_schema |
+| test               |
+| test_gbk           |
++--------------------+
+6 rows in set (0.00 sec)
+
+mysql> use test_gbk;
+相当于cd命令，切换到数据库进行操作
+Database changed
+
+mysql> select database();
+查看当前连接的数据库，相当于pwd
++------------+
+| database() |
++------------+
+| test_gbk   |
++------------+
+1 row in set (0.00 sec)
+
+mysql> select user();
+查看当前连接数据库的用户,相当于whoami
++----------------+
+| user()         |
++----------------+
+| root@localhost |
++----------------+
+1 row in set (0.00 sec)
+
+4.创建用户、授权、收回权限
+当数据库创建完成后，就需要创建用户，以供需要连接数据库的人员使用与操作数据库，不可能人人使用root登陆，所以权限设置也是很重要的
+创建用户并all权限给在test_gbk库所有表，密码‘123456’
+mysql> grant all on test_gbk.* to 'testuser'@'localhost'identified by '123456';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> flush privileges;
+刷新权限，使权限生效
+
+查看用户有哪些权限
+mysql> show grants for 'testuser'@'localhost';
++-----------------------------------------------------------------------------------------------------------------+
+| Grants for testuser@localhost                                                                                   |
++-----------------------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'testuser'@'localhost' IDENTIFIED BY PASSWORD '*6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9' |
+| GRANT ALL PRIVILEGES ON `test_gbk`.* TO 'testuser'@'localhost'                                                  |
++-----------------------------------------------------------------------------------------------------------------+
+2 rows in set (0.01 sec)
+
+收回权限
+将以上权限收回
+mysql> revoke insert,update,select,delete on test_gbk.* from 'testuser'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show grants for 'testuser'@'localhost';  
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Grants for testuser@localhost                                                                                                                                                                                |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'testuser'@'localhost' IDENTIFIED BY PASSWORD '*6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9'                                                                                              |
+| GRANT CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `test_gbk`.* TO 'testuser'@'localhost' |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+2 rows in set (0.00 sec)
+原来不知道all权限到底是哪些权限，采用这种方法之后，应该就清楚了
+
+SELECT,INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER
+
+5.创建、删除表
+建表，并且建立两个字段 名字（id，name）和类型（int，char）
+mysql> create table test(id int(4)not null,name char(20)not null);
+Query OK, 0 rows affected (0.03 sec)
+
+查看表
+mysql> show tables;
++--------------------+
+| Tables_in_test_gbk |
++--------------------+
+| test               |
++--------------------+
+1 row in set (0.00 sec)
+
+查看表结构
+mysql> desc test;
++-------+----------+------+-----+---------+-------+
+| Field | Type     | Null | Key | Default | Extra |
++-------+----------+------+-----+---------+-------+
+| id    | int(4)   | NO   |     | NULL    |       |
+| name  | char(20) | NO   |     | NULL    |       |
++-------+----------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+建表，并且建立两个字段
+
+mysql> create table test1(id int(4)not null,name char(20)not null);
+Query OK, 0 rows affected (0.02 sec)
+mysql> show tables;
++--------------------+
+| Tables_in_test_gbk |
++--------------------+
+| test               |
+| test1              |
++--------------------+
+2 rows in set (0.00 sec)
+
+删除表
+mysql> show tables;
++--------------------+
+| Tables_in_test_gbk |
++--------------------+
+| test               |
+| test1              |
++--------------------+
+2 rows in set (0.00 sec)
+
+mysql> drop tables test;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> show tables;
++--------------------+
+| Tables_in_test_gbk |
++--------------------+
+| test1              |
++--------------------+
+1 row in set (0.00 sec)
+
+查看建表
+mysql> show create table test1\G;
+*************************** 1. row ***************************
+       Table: test1
+Create Table: CREATE TABLE `test1` (
+  `id` int(4) NOT NULL,
+  `name` char(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=gbk
+1 row in set (0.00 sec)
+
+ERROR: 
+No query specified
+
