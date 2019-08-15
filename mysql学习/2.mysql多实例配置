@@ -1,0 +1,142 @@
+1.什么是多实例
+      多实例就是一台服务器上开启多个不同的服务端口（默认3306），运行多个mysql的服务进程，这此服务进程通过不同的socket监听不同的服务端口来提供各在的服务，所有实例之间共同使用一套MYSQL的安装程序，但各自使用不同的配置文件、启动程序、数据文件，在逻辑上是相对独立的。
+      多实例主要作用是：充分利用现有的服务器硬件资源，为不同的服务提供数据服务，但是如果某个实例并发比较高的，同样是会影响到其它实例的性能
+2.安装多实例环境准备（自己直接使用docker安装多个mysql）
+安装前需要先安装mysql，但是只需将安装过程进行到make install即可（编译安装），如果使用免安装程序，只需解压软件包即可，今天的环境是通过免安装包来安装mysql主程序（其它的安装可以参考前面的安装过程自行测试）
+[root@162 ~]# cat /etc/redhat-release 
+CentOS Linux release 7.6.1810 (Core)
+[root@162 ~]# uname -r
+4.10.4-1.el7.elrepo.x86_64
+
+下载安装程序
+wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.45-linux-glibc2.12-x86_64.tar.gz
+创建用户禁止登陆
+groupadd mysql
+useradd mysql -s /sbin/nologin -g mysql -M
+tail -1 /etc/passwd
+  mysql:x:500:500::/home/mysql:/sbin/nologin
+
+创建多实例的数据目录
+mkdir -p /data/{3306,3307}
+
+[root@162 ~]# tree /data/
+/data/
+├── 3306
+└── 3307
+
+2 directories, 0 files
+
+3.安装mysql多实例
+解压文件
+tar -zxvf mysql-5.6.45-linux-glibc2.12-x86_64.tar.gz
+cd mysql-5.6.45-linux-glibc2.12-x86_64
+
+拷贝配置文件
+cp support-files/my-default.cnf  /data/3306/my.cnf
+cp support-files/mysql.server /data/3306/mysql
+
+cp support-files/my-default.cnf  /data/3307/my.cnf
+cp support-files/mysql.server /data/3307/mysql
+
+为一规范安装路径，将免安装包拷贝到应用程序目录下
+mkdir -p /application/mysql
+mv mysql-5.6.45-linux-glibc2.12-x86_64 /application/mysql/
+
+[root@162 ~]# ll /application/mysql
+total 68
+drwxr-xr-x  2 root root   4096 Aug 15 03:59 bin
+-rw-r--r--  1 7161 31415 17987 Jun 10 06:25 COPYING
+drwxr-xr-x  3 root root   4096 Aug 15 03:58 data
+drwxr-xr-x  2 root root   4096 Aug 15 03:59 docs
+drwxr-xr-x  3 root root   4096 Aug 15 03:59 include
+drwxr-xr-x  3 root root   4096 Aug 15 03:59 lib
+drwxr-xr-x  4 root root   4096 Aug 15 03:58 man
+drwxr-xr-x 10 root root   4096 Aug 15 03:59 mysql-test
+-rw-r--r--  1 7161 31415  2496 Jun 10 06:25 README
+drwxr-xr-x  2 root root   4096 Aug 15 03:58 scripts
+drwxr-xr-x 28 root root   4096 Aug 15 03:58 share
+drwxr-xr-x  4 root root   4096 Aug 15 03:59 sql-bench
+drwxr-xr-x  2 root root   4096 Aug 15 03:58 support-files
+
+修改配置文件与启动文件
+因为是多实例，其中参数需要修改，修改后的配置文件如下
+配置文件my.cnf
+
+
+[client]
+port = 3307
+socket = /data/3307/mysql.sock
+[mysql]
+no-auto-rehash
+[mysqld] user = mysql
+port = 3307
+socket = /data/3307/mysql.sock
+basedir = /application/mysql
+datadir = /data/3307/data
+#log_long_format
+#log-error = /data/3307/error.log
+#log-slow-queries = /data/3307/slow.log
+pid-file = /data/3307/mysql.pid
+server-id = 3
+[mysqld_safe]
+log-error=/data/3307/mysql3307.err
+pid-file=/data/3307/mysqld.pid
+
+
+配置mysql
+vim mysql
+#!/bin/sh
+init port=3307
+mysql_user="root"
+mysql_pwd="migongge"
+CmdPath="/application/mysql/bin"
+mysql_sock="/data/${port}/mysql.sock"
+#startup
+function_start_mysql() {
+if [ ! -e "$mysql_sock" ];then
+   printf "Starting MySQL...\n"
+/bin/sh ${CmdPath}/mysqld_safe --defaults-file=/data/${port}/my.cnf 2>&1 > /dev/null &
+else
+  printf "MySQL is running...\n"
+exit
+fi
+}
+#stop function
+function_stop_mysql() {
+if [ ! -e "$mysql_sock" ];then
+printf "MySQL is stopped...\n"
+exit
+else
+printf "Stoping MySQL...\n"
+${CmdPath}/mysqladmin -u ${mysql_user} -p${mysql_pwd} -S /data/${port}/mysql.sock shutdown
+fi
+}
+#restart function
+function_restart_mysql() {
+   printf "Restarting MySQL...\n"
+   function_stop_mysql
+   sleep 2
+   function_start_mysql
+}
+case $1 in
+start)
+function_start_mysql
+;;
+stop)
+function_stop_mysql
+;;
+restart)
+function_restart_mysql
+;;
+*)
+printf "Usage: /data/${port}/mysql {start|stop|restart}\n"
+esac
+
+
+/application/mysql/scripts/mysql_install_db --basedir=/application/mysql --datadir=/data/3307/data --default-file=/data/3307/my.cnf --user=mysql
+
+报错Installing MySQL system tables.../application/mysql/bin/mysqld: error while loading shared libraries: libnuma.so.1: cannot open shared object file: No such file or directory
+
+yum -y install numactl.x86_64
+
+
