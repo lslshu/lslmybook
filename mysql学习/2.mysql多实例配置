@@ -68,7 +68,8 @@ port = 3307
 socket = /data/3307/mysql.sock
 [mysql]
 no-auto-rehash
-[mysqld] user = mysql
+[mysqld] 
+user = mysql
 port = 3307
 socket = /data/3307/mysql.sock
 basedir = /application/mysql
@@ -133,10 +134,14 @@ printf "Usage: /data/${port}/mysql {start|stop|restart}\n"
 esac
 
 
-/application/mysql/scripts/mysql_install_db --basedir=/application/mysql --datadir=/data/3307/data --default-file=/data/3307/my.cnf --user=mysql
+/application/mysql/scripts/mysql_install_db --basedir=/application/mysql --datadir=/data/3307/data --user=mysql
 
 报错Installing MySQL system tables.../application/mysql/bin/mysqld: error while loading shared libraries: libnuma.so.1: cannot open shared object file: No such file or directory
 
 yum -y install numactl.x86_64
 
+
+
+
+/usr/local/mysql/scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data
 

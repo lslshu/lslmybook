@@ -1,0 +1,145 @@
+自己直接使用docker进行安装mysql
+docker pull mysql:5.6
+创建mysql配置文件，日志，数据文件存放位置
+mkdir -p docker/mysql/{conf,logs,data}
+
+docker run --name 1mysql -p 13306:3306 -v ~/docker/mysql/conf:/etc/mysql -v ~/docker/mysql//logs:/logs -v ~/docker/mysql/data:/mysql_data -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.6
+
+data 目录将映射为 mysql 容器配置的数据文件存放路径
+logs 目录将映射为 mysql 容器的日志目录
+conf 目录里的配置文件将映射为 mysql 容器的配置文件
+
+常见选项：
+--all-databases, -A： 备份所有数据库
+--databases, -B： 用于备份多个数据库，如果没有该选项，mysqldump把第一个名字参数作为数据库名，后面的作为表名。使用该选项，mysqldum把每个名字都当作为数据库名。
+
+--force, -f：即使发现sql错误，仍然继续备份
+--host=host_name, -h host_name：备份主机名，默认为localhost
+--no-data, -d：只导出表结构
+--password[=password], -p[password]：密码
+--port=port_num, -P port_num：制定TCP/IP连接时的端口号
+--quick, -q：快速导出
+--tables：覆盖 --databases or -B选项，后面所跟参数被视作表名
+--user=user_name, -u user_name：用户名
+--xml, -X：导出为xml文件
+
+
+1.单库备份
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| test               |
++--------------------+
+3 rows in set (0.00 sec)
+
+创建备份目录
+mkdir -p /download
+mysqldump -uroot -p test >/download/testbak_$(date +%F).sql
+
+[root@162 download]# ll
+total 4
+-rw-r--r-- 1 root root 1256 Aug 20 01:34 testbak_2019-08-20.sql
+
+查看备份文件内容
+egrep -v "^--|\*|^$" /download/testbak_2019-08-20.sql
+
+[root@162 ~]# egrep -v "^--|\*|^$" /download/testbak_2019-08-20.sql 
+DROP TABLE IF EXISTS `test1`;
+CREATE TABLE `test1` (
+  `id` int(4) NOT NULL,
+  `name` char(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+LOCK TABLES `test1` WRITE;
+UNLOCK TABLES;
+由上的文件内容，可以看出，这个备份实际的过程就是将创建数据库、建表、插入数据的sql语句备份出来，也可以说是将sql语句导出
+
+-B参数
+mysqldump -u root -p -B test >/download/testbak_$(date +%F)_b.sql
+
+           
+[root@162 ~]# egrep -v "^--|^$" /download/testbak_2019-08-20_b.sql 
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `test` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `test`;
+DROP TABLE IF EXISTS `test1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `test1` (
+  `id` int(4) NOT NULL,
+  `name` char(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+LOCK TABLES `test1` WRITE;
+/*!40000 ALTER TABLE `test1` DISABLE KEYS */;
+/*!40000 ALTER TABLE `test1` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-B参数的作用一目了然，就是当我们的数据库丢失时，可以直接用此备份文件进行恢复，无需再重新建库、建表，然后再进行数据恢复的操作
+
+
+2.压缩备份
+mysqldump -uroot -p -B test|gzip >/download/testbak_$(date +%F).sql.gz
+
+[root@162 download]# ll
+-rw-r--r-- 1 root root  707 Aug 20 02:41 testbak_2019-08-20.sql.gz
+
+3.多库备份
+mysqldump -uroot -p -B test mysql|gzip >/download/testbak_$(date +%F).sql01.gz
+
+-- Warning: Skipping the data of table mysql.event. Specify the --events option explicitly.
+此处有个警告信息，可以忽略也可以备份时加上参数，备份语句如下
+mysqldump -uroot -p -B --events test mysql|gzip >/download/testbak_$(date +%F).sql02.gz
+但是这种多库一起备份，就会产生一个问题，如果只是其中一个数据库有问题了，就不好进行单库恢复了，故此备份方法不常用，也不符合实际需求，因此多库备份时就需要进行多次单库备份的操作
+
+
+4.单表备份
+分库备份是为了恢复数据库时方便操作，但是同样面临问题，如果是某个库中的某一个表有损坏，但又不有全库进行恢复，所以实际生产中常用的是分库、分表进行备份，这样数据也备份了，恢复时也好操作
+
+mysqldump -uroot -p -B test test>/download/testbak_$(date +%F).sql
+查看备份数据
+egrep -v "#|^$|\*" /download/testbak_2019-08-20.sql
+
+因此分表备份同分库备份一样，只需要进行多次单表备份的操作，但是有的小伙伴肯定会提出问题了，如果一个库里几千张表，几万张表，这种备份要备到猴年马月吧？？？？，数据量比较大的备份可以使用专业的备份工具，数据量不大或者表不是很多的情况，可以将备份操作写成脚本 纳入定时任务，定时执行，只需要检查备份是否成功即可
+
+5.备份所有数据库的数据和结构 -A
+mysqldump -u root -p -A >/download/mysql1_$(date +%F).sql
+
+Enter password: 
+-- Warning: Skipping the data of table mysql.event. Specify the --events option explicitly.
+
+6.备份全部数据库的结构 -d
+mysqldump -u root -p -A -d >/download/mysql2_$(date +%F).sql
+
+7.备份全部数据库的数据 -t
+mysqldump -u root -p -A -t >/download/mysql3_$(date +%F).sql
+
+8.还原所有数据库
+(1) mysql命令行：mysql>source >目录
+(2) 系统命令行： mysql -uroot -p123456 <目录
+
+还原单个数据库（需指定数据库）
+(1) mysql>use mydb
+(2) mysql -uroot -p123456 mydb<目录
+
+
+
