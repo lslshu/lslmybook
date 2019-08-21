@@ -1,0 +1,135 @@
+模拟环境，主从库在同一台服务器上,端口3306,3307
+swapoff -a
+dd if=/dev/zero of=/home/swap bs=1M count=1024
+/sbin/mkswap -f /home/swap
+/sbin/swapon -f /home/swap
+vim /etc/fstab
+/home/swap swap swap defaults 0 0
+
+
+下载mysql
+wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.45-linux-glibc2.12-x86_64.tar.gz
+创建目录
+mkdir -p /data/{3306,3307}
+
+mkdir /application
+tar -zxvf mysql-5.6.45-linux-glibc2.12-x86_64.tar.gz
+
+mv mysql-5.6.45-linux-glibc2.12-x86_64 /application/mysql
+
+groupadd mysql
+useradd -g mysql -M mysql
+初始化数据库
+/application/mysql/scripts/mysql_install_db --basedir=/application/mysql --datadir=/data/3306/data --user=mysql
+/application/mysql/scripts/mysql_install_db --basedir=/application/mysql --datadir=/data/3307/data --user=mysql
+
+
+创建配置文件
+vim /data/3306/my.cnf
+
+[client]
+port            = 3306
+socket          = /data/3306/mysql.sock
+[mysql]
+no-auto-rehash
+[mysqld]
+user    = mysql
+port    = 3306
+socket  = /data/3306/mysql.sock
+basedir = /application/mysql
+datadir = /data/3306/data
+open_files_limit    = 1024
+back_log = 600
+max_connections = 800
+max_connect_errors = 3000
+table_cache = 614
+external-locking = FALSE
+max_allowed_packet =8M
+sort_buffer_size = 1M
+join_buffer_size = 1M
+thread_cache_size = 100
+thread_concurrency = 2
+query_cache_size = 2M
+query_cache_limit = 1M
+query_cache_min_res_unit = 2k
+thread_stack = 192K
+tmp_table_size = 2M
+max_heap_table_size = 2M
+long_query_time = 1
+pid-file = /data/3306/mysql.pid
+log-bin = /data/3306/mysql-bin
+         #主从同步的关键点，从库上不需要开启
+relay-log = /data/3306/relay-bin
+relay-log-info-file = /data/3306/relay-log.info
+binlog_cache_size = 1M
+max_binlog_cache_size = 1M
+max_binlog_size = 2M
+expire_logs_days = 7
+key_buffer_size = 16M
+read_buffer_size = 1M
+read_rnd_buffer_size = 1M
+bulk_insert_buffer_size = 1M
+lower_case_table_names = 1
+skip-name-resolve
+slave-skip-errors = 1032,1062
+replicate-ignore-db=mysql 
+server-id = 1    #主库从库ID 不可相同
+[mysqldump]
+quick
+max_allowed_packet = 2M
+[mysqld_safe]
+log-error=/data/3306/mysql3306.err
+pid-file=/data/3306/mysqld.pid
+
+
+vim /data/3306/mysql
+
+#!/bin/sh
+port=3306
+user="root"
+pwd="123456"
+Path="/application/mysql/bin"
+sock="/data/${port}/mysql.sock"
+start_mysql()
+{
+    if [ ! -e "$sock" ];then
+      printf "Starting MySQL...\n"
+      /bin/sh ${Path}/mysqld_safe --defaults-file=/data/${port}/my.cnf 2>&1 > /dev/null &
+    else
+      printf "MySQL is running...\n"
+      exit
+    fi
+}
+stop_mysql()
+{
+    if [ ! -e "$sock" ];then
+       printf "MySQL is stopped...\n"
+       exit
+    else
+       printf "Stoping MySQL...\n"
+       ${Path}/mysqladmin -u ${user} -p${pwd} -S /data/${port}/mysql.sock shutdown
+   fi
+}
+restart_mysql()
+{
+    printf "Restarting MySQL...\n"
+    stop_mysql
+    sleep 2
+    start_mysql
+}
+case $1 in
+start)
+    start_mysql
+;;
+stop)
+    stop_mysql
+;;
+restart)
+    restart_mysql
+;;
+*)
+    printf "Usage: /data/${port}/mysql {start|stop|restart}\n"
+esac
+
+授权目录并增加启动文件可执行权限
+chown -R mysql.mysql /data

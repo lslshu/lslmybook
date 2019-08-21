@@ -1,0 +1,149 @@
+1.mysql命令介绍
+mysql 是数据库管理命令
+通过mysql --help来查看相关参数及使用说明
+mysql --help   
+            #mysql数据库管理命令
+Usage: mysql [OPTIONS] [database]    
+            #语法格式
+--help  #查看帮助文档
+--auto-rehash                            
+           #自动补全功能
+-A, --no-auto-rehash                
+           #不需自动补全
+-B, --batch                               
+       #不使用历史文件，禁用交互
+--character-sets-dir=name     
+         #字符集安装目录
+-C, --compress                 
+ #客户端与服务端传递信息时压缩
+-#--debug[=#]                        
+         #调用功能
+-D, --database=name    
+         #使用数据库
+--default-character-set=name
+         #设置默认字符集
+-e, --execute=name             
+         #执行sql语句
+-E, --vertical                         
+        #垂直打印输出信息
+-f, --force                             
+        #跳过错误，执行下面的命令
+-G, --named-commands     
+        #查询结果按列打印
+-i, --ignore-spaces              
+        #忽略空格
+-h, --host=name                
+         #设置连接服务器的地址与IP
+--line-numbers                  
+        #显示有错误的行号
+-L, --skip-line-numbers     
+        #忽略有错误的行号
+-n, --unbuffered                
+        #每次执行sql后刷新缓存
+--column-names               
+        #查询时显示列信息
+-N, --skip-column-names  
+        #不显示列信息
+-p, --password[=name]     
+        #输入密码信息
+-P, --port=#                       
+       #设置端口信息
+    --prompt=name           
+       #设置mysql提示符
+    --protocol=name          
+       #设置使用协议
+-s, --silent                    
+      #一行一行输出，tab间隔
+-S, --socket=name      
+      #连接服务器使用socket文件
+-t, --table                     
+      #以表格的格式输出
+-u, --user=name           
+      #连接服务器的用户名
+-v, --verbose                   
+      #打印sql执行的命令
+-V, --version                   
+      #输出版本信息
+-w, --wait                      
+     #服务器停机后等待重启的时间
+--connect-timeout=#             
+     #连接前要等待的时间
+--max-allowed-packet=#          
+#服务器发送与接收包的最大长度
+--show-warnings                
+    #显示警告信息
+
+
+2.mysqldump命令介绍
+
+mysqldump数据备份命令（逻辑备份）
+日常使用最为频繁的命令之一，也是中小企业或者说数据量不大的情况下常用的数据库备份命令，非常实用。
+mysqldump --help          
+#mysql数据库备份命令（逻辑备份）
+Usage: mysqldump [OPTIONS] database [tables]                   
+mysqldump [OPTIONS] --databases [OPTIONS] DB1 [DB2 DB3...]
+mysqldump [OPTIONS] --all-databases [OPTIONS]
+         #备份命令格式
+--print-defaults                
+     #打印默认的程序参数列表
+--no-defaults                    
+    #不输出默认选项参数
+--defaults-file=#              
+    #设置指定的选项参数文件
+-A, --all-databases           
+    #所有数据库
+--add-drop-database       
+#创建数据之前添加drop数据库语句
+--add-locks    
+#每个表导出之前增加lock tables并且之后unlock tables
+--character-sets-dir           
+   #字符集文件目录
+--compact
+    #导出更少的输出信息
+-B --databases
+#指定数据库
+--debug-info
+#输出调试信息并退出
+--default-character-set  
+#设置默认字符集，默认为utf8
+--dump-slave         
+#将主binlog位置和文件名追加到导出的数据文件中
+--events,-E   
+   #备份事件信息
+--flush-logs,-F 
+   #备份后刷新日志
+-p, --password[=name] 
+   #连接数据库密码
+-P, --port=# 
+   #设置端口信息
+-S, --socket=name 
+   #连接服务器使用socket文件
+-V, --version
+    #输出版本信息
+-u, --user=name 
+   #连接服务器的用户名
+
+3.mysqlbinlog命令介绍
+
+mysqlbinlog 是用来查看binlog二进制日志文件信息的命令，也是日常经常使用的命令之一，通常在恢复数据库数据时使用。
+mysqlbinlog --help              
+#查看mysql的binlog日志文件记录的信息
+Usage: mysqlbinlog [options] log-files   
+      #语法格式
+--character-sets-dir=name        
+        #指定字符集文件目录
+-d, --database=name                
+       #查看指定数据库的日志文件
+-h, --host=name      
+       #查看指定主机上的日志文件
+--start-position=953                  
+            #起始pos点    
+--stop-position=1437
+            #结束pos点          
+--start-datetime=    
+            #起始时间点          
+--stop-datetime=    
+            #结束时间点        
+--database=             
+            #指定只恢复数据库
+
