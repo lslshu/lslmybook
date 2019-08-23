@@ -8,6 +8,13 @@ CentOS Linux release 7.6.1810 (Core)
 [root@162 ~]# uname -r
 4.10.4-1.el7.elrepo.x86_64
 
+查看系统是否有mysql
+rpm -qa | grep mysql
+yum remove mysql* -y
+在centos7中检查是否按照mariadb
+rpm -qa |grep mariadb
+yum remove mariadb*
+
 下载安装程序
 wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.45-linux-glibc2.12-x86_64.tar.gz
 创建用户禁止登陆
@@ -39,8 +46,8 @@ cp support-files/my-default.cnf  /data/3307/my.cnf
 cp support-files/mysql.server /data/3307/mysql
 
 为一规范安装路径，将免安装包拷贝到应用程序目录下
-mkdir -p /application/mysql
-mv mysql-5.6.45-linux-glibc2.12-x86_64 /application/mysql/
+mkdir -p /application
+mv mysql-5.6.45-linux-glibc2.12-x86_64 /application/mysql
 
 [root@162 ~]# ll /application/mysql
 total 68
@@ -140,3 +147,4 @@ esac
 
 yum -y install numactl.x86_64
 
+文件的读写权限很重要，不然会报错，报错查看日志百度谷歌去把
