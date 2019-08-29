@@ -1,10 +1,32 @@
-#!/bin/bash
+#!bin/bash
+echo "请输入你要安装的nginx版本(12,14,16,17)："
+read ver
+if [[ "$ver" -eq 12 ]]
+ then
+	wget http://nginx.org/download/nginx-1.12.2.tar.gz
+	tar -zxvf nginx-1.12.2.tar.gz
+    cd nginx-1.12.2 
+elif [[ "$ver" -eq 14 ]]
+ then
+	wget http://nginx.org/download/nginx-1.14.2.tar.gz
+	tar -zxvf nginx-1.14.2.tar.gz
+    cd nginx-1.14.2 
+elif [[ "$ver" -eq 16 ]]
+ then
+	wget http://nginx.org/download/nginx-1.16.1.tar.gz
+		tar -zxvf nginx-1.16.1.tar.gz
+    cd nginx-1.16.1 
+elif [[ "$ver" -eq 17 ]]
+ then
+	wget http://nginx.org/download/nginx-1.17.3.tar.gz
+	tar -zxvf nginx-1.17.3.tar.gz
+    cd nginx-1.17.3
+else
+	echo "没有相应的版本，请重新运行脚本"
+fi
 yum install gcc gcc-c++ pcre pcre-devel zlib zlib-devel openssl openssl-devel -y
 groupadd www
 useradd -g www www
-wget http://nginx.org/download/nginx-1.14.2.tar.gz
-tar -zxvf nginx-1.14.2.tar.gz
-cd nginx-1.14.2 
 ./configure --prefix=/usr/local/nginx --without-http_memcached_module --user=www --group=www --with-http_stub_status_module --with-http_ssl_module --with-http_gzip_static_module
 make && make install 
 /usr/local/nginx/sbin/nginx
