@@ -1,0 +1,20 @@
+#!bin/bash
+#创建用户脚本
+if [[ $(id -u) -eq 0 ]]
+ then
+  read -p "输入添加用户名：" username
+  read -s -p "输入密码：" password
+egrep "^$username" /etc/passwd > /dev/null
+ if [[ $? -eq 0 ]]
+  then
+ 	echo "$username 已经存在"
+ 	exit 1
+ else
+ 	 pass=$(perl -e 'print crypt($ARGV[0], "password")' $password)
+     useradd -m -p $pass $username
+     [ $? -eq 0 ] && echo "用户添加到系统中" || echo "无法添加用户"
+    fi
+ else
+    echo "只有root可以将用户添加到系统"
+    exit 2
+fi
