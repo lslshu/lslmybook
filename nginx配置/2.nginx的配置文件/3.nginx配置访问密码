@@ -1,0 +1,43 @@
+1.安装htpasswd工具
+yum install httpd-tools
+
+htpasswd -c /usr/local/src/nginx/passwd name
+
+htpasswd命令选项参数说明
+-c 创建一个加密文件
+-n 不更新加密文件，只将htpasswd命令加密后的用户名密码显示在屏幕上
+-m 默认htpassswd命令采用MD5算法对密码进行加密
+-d htpassswd命令采用CRYPT算法对密码进行加密
+-p htpassswd命令不对密码进行进行加密，即明文密码
+-s htpassswd命令采用SHA算法对密码进行加密
+-b htpassswd命令行中一并输入用户名和密码而不是根据提示输入密码
+-D 删除指定的用户
+
+利用htpasswd命令添加用户
+htpasswd -bc ./.passwd user password
+当前目录下生产用户user，密码为password的用户，加密默认为MD5
+
+不更新密码文件，只显示加密后的用户名和密码
+htpasswd -nb user password
+
+htpasswd命令删除用户名和密码
+htpasswd -D .passwd user
+
+利用 htpasswd 命令修改密码
+htpasswd -D .passwd user 
+htpasswd -b .passwd user password
+
+2.修改nginx配置
+nginx 配置文件，因为我们要对整个站点开启验证，所以在配置文件中的第一个server修改
+server {
+   listen 80;
+   server_name  localhost;
+   .......
+ 
+   #新增下面两行
+   auth_basic "Please input password"; #这里是验证时的提示信息 
+   auth_basic_user_file /usr/local/src/nginx/passwd;
+ 
+   location /{
+   .......
+}
