@@ -1,0 +1,51 @@
+
+#！bin/bash
+#使用mysql源码进行的安装，使用centos6
+echo "请选择需要安装mysql的版本(5,6,7,8)"
+read myver
+if [ "$myver" -eq 5 ]
+ then
+	wget https://dev.mysql.com/get/Downloads/MySQL-5.5/MySQL-5.5.62-1.el6.src.rpm
+	rpm -ivh MySQL*
+    tar -zxvf rpmbuild/SOURCES/mysql* && cd mysql*
+elif [ "$myver" -eq 6 ]
+ then
+	wget https://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-5.6.45-1.el6.src.rpm
+    rpm -ivh MySQL*
+    tar -zxvf rpmbuild/SOURCES/mysql* && cd mysql*
+elif [ "$myver" -eq 7 ]
+ then
+	wget https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-community-5.7.27-1.el6.src.rpm
+    rpm -ivh mysql*
+    tar -zxvf rpmbuild/SOURCES/mysql-5.7.27.tar.gz && cd mysql*
+elif [ "$myver" -eq 8 ]
+ then
+	wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-community-8.0.17-1.el6.src.rpm
+    rpm -ivh mysql-community-8*
+    tar -zxvf rpmbuild/SOURCES/mysql-8.0.17.tar.gz && cd mysql*
+else
+	echo "没有相应的版本，请重新运行脚本"
+fi
+yum install cmake gcc gcc-c++ make ncurses-devel openssl-devel -y
+groupadd mysql
+useradd -g mysql mysql
+cmake . -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_DATADIR=/data/mysql -DSYSCONFDIR=/etc
+make && make install
+mkdir -p /data/mysql
+rm -rf /etc/my.cnf
+cd /usr/local/mysql
+./scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/data/mysql
+#设置mysql开机自启 
+ln -s /usr/local/mysql/my.cnf /etc/my.cnf
+cp ./support-files/mysql.server /etc/rc.d/init.d/mysqld
+chmod 755 /etc/init.d/mysqld
+chkconfig mysqld on
+service mysqld start
+#设置变量
+echo "export PATH=$PATH:/usr/local/mysql/bin" >> ~/etc/profile
+source /etc/profile
+#下面这几行把myslq的库文件链接到系统默认的位置，这样你在编译类似PHP等软件时可以不用指定mysql的库文件地址
+ln -s /usr/local/mysql/lib/mysql /usr/lib/mysql
+ln -s /usr/local/mysql/include/mysql /usr/include/mysql
+mkdir /var/lib/mysql 
+ln -s /tmp/mysql.sock /var/lib/mysql/mysql.sock
