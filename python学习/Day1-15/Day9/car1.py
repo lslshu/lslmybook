@@ -32,4 +32,26 @@ class Car(object):
 	def brand(self):
 		del self._brand
 
-	
+	@property
+	def max_speed(self):
+		return self._max_speed
+	@max_speed.setter
+	def max_speed(self,max_speed):
+		if max_speed < 0:
+			raise ValueError('Invalid max speed for car')
+		self._max_speed = max_speed
+
+	def __str__(self):
+		return 'Car: [品牌=%s,最高时速=%d]' % (self._brand,self._max_speed)
+
+car = Car('QQ',123)
+print(car)
+
+car.max_speed = 320
+car.brand = "Benz"
+print(car)
+
+print(Car.brand)
+print(Car.brand.fget)
+print(Car.brand.fset)
+print(Car.brand.fdel)
