@@ -1,0 +1,55 @@
+1.安装certbot
+
+CENTOS6
+cd /usr/bin
+wget https://dl.eff.org/certbot-auto
+chmod a+x certbot-auto
+ln -s /usr/bin/certbot-auto /usr/bin/certbot
+
+CENTOS7
+yum install epel-release
+yum install certbot
+
+获取证书
+certbot certonly --webroot -w /www/wwwroot/xxxx -d www.xxxx.top
+
+提示
+ImportError: No module named 'requests.packages.urllib3'
+原因：requests库版本问题
+解决方法：　　
+
+sudo pip install requests urllib3 pyOpenSSL --force --upgrade
+sudo pip install --upgrade --force-reinstall 'requests==2.6.0'
+
+如果出现下面的提示，则需要修改nginx配置
+http://www.xxxx.top/.well-known/acme-challenge/9OpXMrK9w5xaSn4_LXr2EHnbJnFfQgTDzNvFUIQNWZU
+   [173.242.115.63]: "<html>\r\n<head><title>404 Not"
+
+进入nginx修改命令
+
+location ~ /.well-known {
+    allow all;
+}
+出现提示成功
+IMPORTANT NOTES:
+ - Congratulations! Your certificate and chain have been saved at
+   /etc/letsencrypt/live/ubock.com/fullchain.pem. Your cert will
+   expire on 2017-05-27. To obtain a new or tweaked version of this
+   certificate in the future, simply run certbot again. To
+   non-interactively renew all of your certificates, run "certbot
+   renew"
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le
+
+在完成Let's Encrypt证书的生成之后，我们会在"/etc/letsencrypt/live/ubock.com/"域名目录下有4个文件就是生成的 密钥证书文件。
+
+cert.pem - Apache服务器端证书
+chain.pem - Apache根证书和中继证书
+fullchain.pem - Nginx所需要ssl_certificate文件
+privkey.pem - 安全证书KEY文件
+
+
+2.部署证书到Nginx
+
