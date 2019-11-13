@@ -29,6 +29,9 @@ topics:
    SHOW CREATE TABLE
    SPATIAL
 
+   设置密码
+   SET PASSWORD FOR 'root'@'localhost' = PASSWORD('newpwd');
+
    2.创建，删除，查看数据库
    
    mysql> create database test_data;
