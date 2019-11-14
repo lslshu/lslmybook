@@ -1,3 +1,9 @@
+"""
+不使用多线程的情况 - 模拟多个下载任务
+
+Date: 2019-11-14
+"""
+
 from random import randint
 from time import time,sleep
 
