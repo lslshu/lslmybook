@@ -53,3 +53,152 @@ privkey.pem - 安全证书KEY文件
 
 2.部署证书到Nginx
 
+rewrite 方法
+这是最常用的实现方法, 将所有 http 请求通过 rewrite 重定向到 https 即可
+
+配置1：
+server {
+    listen 80;
+    server_name www.xxx.com;
+    index index.html index.php index.htm;
+   
+    access_log  /usr/local/nginx/logs/8080-access.log main;
+    error_log  /usr/local/nginx/logs/8080-error.log;
+     
+    rewrite ^(.*)$  https://$host$1 permanent;        //这是ngixn早前的写法，现在还可以使用。
+  
+    location ~ / {
+    root /var/www/html/8080;
+    index index.html index.php index.htm;
+    }
+    }
+
+上面的跳转配置rewrite ^(.*)$  https://$host$1 permanent;
+也可以改为下面
+rewrite ^/(.*)$ http://www.xxx.com/$1 permanent;
+或者
+rewrite ^ http://www.xxx.com$request_uri? permanent;
+
+配置2：
+server {
+    listen 80;
+    server_name www.xxx.com;
+    index index.html index.php index.htm;
+   
+    access_log  /usr/local/nginx/logs/8080-access.log main;
+    error_log  /usr/local/nginx/logs/8080-error.log;
+ 
+    return      301 https://$server_name$request_uri;      //这是nginx最新支持的写法
+  
+    location ~ / {
+    root /var/www/html/8080;
+    index index.html index.php index.htm;
+    }
+    }
+
+配置3：这种方式适用于多域名的时候，即访问xxx.com的http也会强制跳转到https://www.xxx.com上面
+server {
+    listen 80;
+    server_name www.xxx.com xxx.com *.xxx.com;
+    index index.html index.php index.htm;
+   
+    access_log  /usr/local/nginx/logs/8080-access.log main;
+    error_log  /usr/local/nginx/logs/8080-error.log;
+     
+    if ($host ~* "^xxx.com$") {
+    rewrite ^/(.*)$ https://www.xxx.com/ permanent;
+    }
+  
+    location ~ / {
+    root /var/www/html/8080;
+    index index.html index.php index.htm;
+    }
+    }
+
+配置4：下面是最简单的一种配置
+server {
+    listen 80;
+    server_name www.xxx.com;
+    index index.html index.php index.htm;
+   
+    access_log  /usr/local/nginx/logs/8080-access.log main;
+    error_log  /usr/local/nginx/logs/8080-error.log;
+     
+    if ($host = "www.xxx.com") {
+       rewrite ^/(.*)$ http://www.xxx.com permanent;
+    }
+ 
+    location ~ / {
+    root /var/www/html/8080;
+    index index.html index.php index.htm;
+    }
+    }
+
+
+
+
+ server {
+#监听80端口
+        listen       80;
+#定义服务器访问
+        server_name xxx.com 920911.xyz;
+
+        #charset koi8-r;
+#设定本虚拟机的访问日志
+        access_log  logs/host.access.log  main;
+
+       rewrite ^(.*)$  https://$host$1 permanent;
+}
+
+
+
+server{
+        listen 443 ssl;
+        server_name xxx.com;
+        index index.html index.htm index.php;
+
+
+        ssl_certificate "/etc/letsencrypt/live/xxx.com/fullchain.pem";#证书文件
+        ssl_certificate_key "/etc/letsencrypt/live/xxx.com/privkey.pem";#证书KEY文件
+        ssl_session_cache shared:SSL:1m;
+        ssl_session_timeout  10m;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #按照这个协议配置
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; #按照这个套件配置
+        ssl_prefer_server_ciphers on;
+
+
+       location ~ \.php$ {
+            root           html;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+     }
+
+
+
+在一个站点只允许 https 访问时, 如果使用 http 访问会报出497错误码
+
+利用497状态码重定向到 https
+
+server {
+    listen 80;
+    server_name www.xxx.com
+    
+    error_page 497  https://$host$uri?$args;
+}
+
+server {
+    listen 443 ssl;
+    server_name www.xxx.com;
+    index index.html index.htm;
+    access_log  /var/log/nginx/docs.log  main;
+    ssl on;
+    ssl_certificate /etc/ssl/docs.20150509.cn.crt;
+    ssl_certificate_key  /etc/ssl/docs.20150509.cn.key;
+    error_page 404 /404.html;
+    location / {
+	    root /var/www/html/docs;
+    }
+}
