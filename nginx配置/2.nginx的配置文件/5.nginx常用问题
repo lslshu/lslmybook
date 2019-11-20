@@ -1,0 +1,106 @@
+1.设置访问密码
+
+yum install httpd-tools
+htpasswd -c /usr/local/nginx/passwd name
+
+server {
+   listen 80;
+   server_name  localhost;
+   .......
+ 
+   #新增下面两行
+   auth_basic "Please input password"; #这里是验证时的提示信息 
+   auth_basic_user_file /usr/local/nginx/passwd;
+   location /{
+   .......
+        }
+}
+
+
+2.设置php支持
+
+       location ~ \.php$ {
+            root           html;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+
+3.https配置
+        ssl_certificate "/etc/letsencrypt/live/www.xxx.xyz/fullchain.pem";#证书文件
+        ssl_certificate_key "/etc/letsencrypt/live/www.xxx.xyz/privkey.pem";#证书KEY文件
+        ssl_session_cache shared:SSL:1m;
+        ssl_session_timeout  10m;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #按照这个协议配置
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; #按照这个套件配置
+        ssl_prefer_server_ciphers on;
+
+4.重写规则rewrite
+server {
+    rewrite 规则 定向路径 重写类型;
+}
+访问的文件和目录不存在时，重定向到某个php文件
+if( !-e $request_filename )
+{
+	rewrite ^/(.*)$ index.php last;
+}
+
+目录对换 /123456/xxxx ====> /xxxx?id=123456
+rewrite ^/(\d+)/(.+)/ /$2?id=$1 last;
+
+禁止访问多个目录
+location ~ ^/(cron|templates)/
+{
+	deny all;
+	break;
+}
+
+禁止访问以/data开头的文件
+location ~ ^/data
+{
+	deny all;
+}
+
+禁止访问以.sh,.flv,.mp3为文件后缀名的文件
+location ~ .*\.(sh|flv|mp3)$
+{
+	return 403;
+}
+
+设置某些类型文件的浏览器缓存时间
+location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+{
+	expires 30d;
+}
+location ~ .*\.(js|css)$
+{
+	expires 1h;
+}
+
+5.nginx不能通过ip访问
+server 
+{ 
+    listen 80 default_server; 
+    server_name _; 
+    return 500; 
+} 
+或者
+server { 
+    listen 80 default_server; 
+    server_name _; 
+    rewrite ^(.*) http://www.xxx.com permanent; 
+} 
+
+6.负载均衡
+upstream name{
+   server ip:8080 weight=1;
+   server ip:8081 weight=1;
+}
+
+server {
+    
+    location  ~*^.+$ {
+    	proxy_pass http://name;
+    }
+}
