@@ -1,0 +1,82 @@
+1.用户与权限
+
+创建用户
+create user name identified by 'password';
+
+修改密码
+#5.5及以前版本
+set password for name=passowrd('password');
+#5.6及以上版本
+update mysql.user set authentication_string=password('password') where user='name';
+
+创建用户并授权
+grant select,insert,update on student.* to name@localhost identified by 'password';
+
+查看授权
+show grants for name@localhost;
+
+移除权限
+revoke insert,update on table.*from name@localhost
+
+2.建库和表
+
+创建库
+create database name;
+show databases;
+
+创建表
+use name;
+create table T1(name varchar(10) not null,sex varchar(10) not null);
+#通过现有的表创建新表
+create table T2 as select*from T1;
+
+3.插入数据
+insert into T1 values('name1','man');
+insert into T1 values('name2','women');
+#如果列超过两列，就需要指定列字段名如下
+ insert into T1(name,sex) values('name3','man');
+
+ 4.查询数据
+ 查询数据
+ select user,host from mysql.user;
+ #查看用户
+ select * from T1 where name like '%am%';
+ select * from T1 where age like '2%';
+#匹配查询
+select * from T1 order by name,sex;
+#查询排序
+select count(*) as toaolcount from T1;
+select sum(sex) as sumvalue from T1;
+select avg(sex) as avgvalue from T1;
+select max(sex) from T1;
+#查询值
+select score from T1 where score <91;
+select score from T1 where score >=91;
+select * from T1 where score in (96,100);
+#条件查询
+select * from T2;
+elect * from T1;
+
+
+5.增删更新
+增加与删除列
+alter table T1 add age int(4) not null;
+alter table T1 drop age;
+更新表里数据
+update T1 set age=25 where name='name1';
+update T1 set age=23 where name='name2';
+删除数据
+delete from T1 where age='22';
+建索引与删除
+create index indexT1 on T1(name(10));
+drop index indexT1 on T1;
+
+6.主键和视图
+创建主键
+alter table T1 add primary key(name);
+desc T1;
+创建与删除视图
+create view t1view as select name from T1;
+select * from t1view;
+drop view t1view;
+select * from t1view;
