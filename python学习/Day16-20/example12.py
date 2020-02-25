@@ -13,13 +13,13 @@ class Employee(metaclass=ABCMeta):
 		self.name = name
 
 	@abstractmethod
-	def get_salart(self):
+	def get_salary(self):
 		'''结算月薪（抽象方法）'''
 		pass
 
 class Manager(Employee):
 	'''部门经理'''
-	def get_salart(self):
+	def get_salary(self):
 		return 15000.0
 
 class Programmer(Employee):
@@ -28,7 +28,7 @@ class Programmer(Employee):
 		self.working_hour = working_hour
 		super().__init__(name)
 
-	def get_salart(self):
+	def get_salary(self):
 		return 200.0 * self.working_hour
 
 class Salesman(Employee):
@@ -37,7 +37,7 @@ class Salesman(Employee):
 		self.sales = sales
 		super().__init__(name)
 
-	def get_salart(self):
+	def get_salary(self):
 		return 1800 + self.sales * 0.05
 
 class EmployeeFactory():
