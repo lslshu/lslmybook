@@ -28,7 +28,7 @@ def seq_search(item: list,elem) -> int:
 			return index
 	return -1
 
-def seq_search(items,elem):
+def bin_search(items,elem):
 	"""二分查找"""
 	start,end = 0,len(items) - 1
 	while start <= end:
