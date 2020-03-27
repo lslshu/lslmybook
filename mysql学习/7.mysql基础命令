@@ -18,6 +18,15 @@ show grants for name@localhost;
 移除权限
 revoke insert,update on table.*from name@localhost
 
+
+centos7安装mysql5.7
+wget https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+rpm -ivh mysql57-community-release-el7-9.noarch.rpm
+yum install mysql-server
+systemctl start mysqld
+获取临时密码
+grep 'temporary password' /var/log/mysqld.log
+
 2.建库和表
 
 创建库
