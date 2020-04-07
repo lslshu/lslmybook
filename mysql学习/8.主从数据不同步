@@ -1,0 +1,280 @@
+先上Master库： 
+mysql>show processlist; 查看下进程是否Sleep太多。发现很正常。 
+show master status; 也正常。 
+mysql> show master status; 
++-------------------+----------+--------------+-------------------------------+ 
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB | 
++-------------------+----------+--------------+-------------------------------+ 
+| mysqld-bin.000001 | 3260 | | mysql,test,information_schema | 
++-------------------+----------+--------------+-------------------------------+ 
+1 row in set (0.00 sec) 
+再到Slave上查看 
+mysql> show slave status\G ;
+Slave_IO_Running: Yes 
+Slave_SQL_Running: No 
+可见是Slave不同步 
+
+下面介绍两种解决方法： 
+方法一：忽略错误后，继续同步 
+该方法适用于主从库数据相差不大，或者要求数据可以不完全统一的情况，数据要求不严格的情况 
+解决： 
+stop slave; 
+#表示跳过一步错误，后面的数字可变 
+set global sql_slave_skip_counter =1; 
+start slave; 
+之后再用mysql> show slave status\G 查看： 
+Slave_IO_Running: Yes 
+Slave_SQL_Running: Yes 
+ok，现在主从同步状态正常了。。。 
+
+方式二：重新做主从，完全同步 
+该方法适用于主从库数据相差较大，或者要求数据完全统一的情况 
+解决步骤如下： 
+1.先进入主库，进行锁表，防止数据写入 
+使用命令： 
+mysql> flush tables with read lock; 
+注意：该处是锁定为只读状态，语句不区分大小写 
+2.进行数据备份 
+#把数据备份到mysql.bak.sql文件 
+[root@server01 mysql]#mysqldump -uroot -p -hlocalhost > mysql.bak.sql 
+这里注意一点：数据库备份一定要定期进行，可以用shell脚本或者python脚本，都比较方便，确保数据万无一失 
+3.查看master 状态 
+mysql> show master status; 
++-------------------+----------+--------------+-------------------------------+ 
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB | 
++-------------------+----------+--------------+-------------------------------+ 
+| mysqld-bin.000001 | 3260 | | mysql,test,information_schema | 
++-------------------+----------+--------------+-------------------------------+ 
+1 row in set (0.00 sec) 
+4.把mysql备份文件传到从库机器，进行数据恢复 
+#使用scp命令 
+[root@server01 mysql]# scp mysql.bak.sql root@192.168.128.101:/tmp/ 
+5.停止从库的状态 
+mysql> stop slave; 
+6.然后到从库执行mysql命令，导入数据备份 
+mysql> source /tmp/mysql.bak.sql 
+7.设置从库同步，注意该处的同步点，就是主库show master status信息里的| File| Position两项 
+
+
+change master to master_host = '192.168.128.100', master_user = 'rsync', master_port=3306, 
+
+master_password='', master_log_file = 'mysqld-bin.000001', master_log_pos=3260; 
+
+
+8.重新开启从同步 
+mysql> stop slave; 
+9.查看同步状态 
+mysql> show slave status\G 查看： 
+Slave_IO_Running: Yes 
+Slave_SQL_Running: Yes 
+好了，同步完成啦。
+
+
+
+
+
+一般情况下遇到mysql主从数据库的数据不能同步的话，可以从slave数据库的状态看出来，这里建议通过脚本来做实时监控。
+
+检查slave数据库的状态是否出现error，或是检查Seconds_Behind_Master参数后跟的是否为数字，如果有异常则显示为null。
+
+
+
+1、我们需要从主库通过mysqldump命令备份一份数据出来，并记录主库的file和position。
+
+导出命令如下：
+
+
+
+mysqldump -R -u root -p test --add-drop-table > /data0/test.20111101.sql
+
+
+
+2、将备份出来的数据文件拷贝到从库主机上，然后将从库stop slave后就可以导入拷贝过来的数据了。
+
+导入命令如下：
+
+
+
+mysql -u root -p mysql < mysql.20111101.sql
+
+
+
+3、导入数据后登录从数据库，change到主库的记录位置。
+
+
+
+命令如下：
+
+
+
+change master to master_log_file='master-mysql-bin.000001',master_log_pos=225302970;
+
+
+
+start slave；
+
+
+
+然后通过show slave status\G即可查看从库状态。
+
+
+
+4、当检查slave数据库服务器状体出现如下错误时，
+
+
+
+Last_Error: Error 'Duplicate entry '1' for key 'PRIMARY'' on query. Default database: 'dnslog'. Query: 'insert into logop (logtime,tbname, sqlstr) VALUES('2011-10-25 07:00:00','logcount04','C/x??}?
+
+
+
+根据提示可以知道是由于重复插入数据导致错误。先stop slave然后使用
+
+SET GLOBAL SQL_SLAVE_SKIP_COUNTER=1;
+
+
+
+再执行start slave后最后再通过show slave status\G;查看slave从库状态。
+
+
+
+5、如果还是不能解决问题则需要修复表，先stop slave然后repair table logop;再执行start slave后最
+
+
+
+后通过show slave status\G;查看slave从库状态。
+
+
+
+1、由于binlog日志带多删除了几个后发现MySQL主从不同步
+ 
+mysql> show slave status\G;
+ 
+              Slave_IO_Running: No
+            Slave_SQL_Running: Yes 
+ 
+查看报错日志为
+ 
+ [ERROR] Slave I/O: Got fatal error 1236 from master when reading data from binary log: 'Could not find first log file name in binary log index file', 
+ 
+解决方式
+ 
+从服务器配置：
+ 
+
+主服务器查看
+ 
+mysql> show master status;
+ 
++------------------+----------+--------------+------------------+
+ 
+| File            | Position | Binlog_Do_DB | Binlog_Ignore_DB |
+ 
++------------------+----------+--------------+------------------+
+ 
+| mysql-bin.000005 |      106 |              |                  | 
+ 
++------------------+----------+--------------+------------------+
+ 
+1 row in set (0.00 sec)
+ 
+从服务器设置
+ 
+mysql>change master to master_host='192.168.0.10',master_user='replication',master_password='replication',master_log_file='mysql-bin.000003',master_log_pos=106; 
+Query OK, 0 rows affected (0.03 sec)
+ 
+ 
+ 
+mysql>stop slave;
+ 
+mysql>start slave;
+ 
+ 
+ 
+主服务器配置
+ 
+从服务器上查看
+ 
+mysql> show master status;
+ 
++------------------+----------+--------------+------------------+
+ 
+| File            | Position | Binlog_Do_DB | Binlog_Ignore_DB |
+ 
++------------------+----------+--------------+------------------+
+ 
+| mysql-bin.000005 |      106 |              |                  | 
+ 
++------------------+----------+--------------+------------------+
+ 
+1 row in set (0.00 sec)
+ 
+主服务器配置
+ 
+mysql> change master to master_host='192.168.0.11',master_user='replication',master_password='replication',master_log_file='mysql-bin.000005',master_log_pos=106;
+ 
+Query OK, 0 rows affected (0.03 sec)
+ 
+mysql>stop slave;
+ 
+mysql>start slave;
+ 
+在查看slave状态ok解决。
+
+
+
+第一次做完主从库同步后正常，但工作过程中发现有一个库的数据库没有同步起来，在另外一个mysql（3307）中
+
+于是： 
+
+1、在主库中创建一个临时库，将需要导入的表文件复制过来 
+
+2、执行 
+
+create database tmpdb; 
+
+create table tmptable; 
+
+cp mysql_date_file master_data_file //shell command 复制数据表文件到master data_dir下 
+
+insert into master.tmptable select * from tmpdb.tmptable; 
+
+执行完后，主库中数据导入正常 
+
+再看slave status 
+
+show slave status; 
+
+发现错误：not found tmpdb.tmptable (大致意思是这个，原来的错误信息没有记录下来) 
+
+匆忙中，看show master status 中Master_Log_Pos 标记为$Master_Log_Pos 
+
+然后在slave 上 CHANGE MASTER TO MASTER_LOG_POS=$Master_Log_Pos 
+
+然后再看show master status，发现有1162错误 
+
+到现在发现两边的数据不能同步了 
+
+。。。。。。 
+
+冥思苦想，不会重新做一遍主从库吧？ 
+
+mysqlbinlog 我突然想到了它 
+
+于是mysqlbinlog --start-position=190000000 --stop-position=200000000 xxx.binlog|grep tmptable 
+
+找到了在slave上执行错误的SQL 
+
+mysqlbinlog --start-position=190000000 --stop-position=200000000 xxx.binlog|grep tmptable > /tmp/tmpbinlog 
+​
+vi /tmp/tmpbinlog (find tmptable) 
+
+找到错误SQL的下一个# at （一串数字）标记为$NEXT_POS 
+
+在slave 上 CHANGE MASTER TO MASTER_LOG_POS=$NEXT_POS 
+
+show slave status 显示： 
+
+Slave_IO_Running: Yes 
+Slave_SQL_Running: Yes 
+
+哈哈，完成同步。
