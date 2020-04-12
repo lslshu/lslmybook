@@ -1,0 +1,13 @@
+单库备份
+mysqldump -uroot -p test >/download/testbak_$(date +%F).sql
+
+打包压缩
+tar -zcvf 文件名.tar.gz 要压缩的文件/文件夹
+
+
+传输,大文件请用rsync
+
+scp 文件名 admin@ip：文件位置
+
+还原单个数据库
+mysql -uroot -p mydb<目录

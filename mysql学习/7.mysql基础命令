@@ -22,10 +22,20 @@ revoke insert,update on table.*from name@localhost
 centos7安装mysql5.7
 wget https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
 rpm -ivh mysql57-community-release-el7-9.noarch.rpm
-yum install mysql-server
+yum install mysql-server -y
 systemctl start mysqld
 获取临时密码
 grep 'temporary password' /var/log/mysqld.log
+
+cat /var/log/mysqld.log | grep password
+
+
+
+修改密码，必须含有数字，小写或大写字母，特殊字符
+set global validate_password_policy=0;
+set global validate_password_length=1;
+
+alter user 'root'@'localhost' identified by '123456';
 
 2.建库和表
 
