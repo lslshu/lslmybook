@@ -1,18 +1,1 @@
 #!bin/bash
-sudo yum update -y
-sudo yum install vim man wget net-tools curl policycoreutils-python openssh-server openssh-clients postfix -y
-
-swapoff -a
-dd if=/dev/zero of=/home/swap bs=1M count=8192
-/sbin/mkswap -f /home/swap
-/sbin/swapon -f /home/swap
-echo "/home/swap swap swap defaults 0 0" >> /etc/fstab
-
-sudo systemctl enable sshd postfix
-sudo systemctl start sshd firewalld postfix
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-sudo systemctl reload firewalld
-
-curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
-sudo EXTERNAL_URL="https://git.xxxxxx.com" yum install -y gitlab-ce
