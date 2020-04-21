@@ -1,35 +1,35 @@
 #!bin/bash
-#一键部署LNMP
+#一键部署LNMP,系统：centos7
 #菜单
 menu()
 {
-	clear
-	echo "##############------菜单------###############"
-	echo "#1.安装 Nginx"
-	echo "#2.安装 Mysql"
-	echo "#3.安装 PHP"
-	echo "#4. 退出程序"
-	echo "#############################################"
+  clear
+  echo "##############------菜单------###############"
+  echo "#1.安装 Nginx16.1"
+  echo "#2.安装 Mysql5.7"
+  echo "#3.安装 PHP7.0"
+  echo "#4. 退出程序"
+  echo "#############################################"
 }
 
 #选择
 choice()
 {
-	read -p "请输入菜单[1-4]：" select
+  read -p "请输入菜单[1-4]：" select
 }
 #安装Nginx
 install_nginx()
 {
-	id nginx &>/dev/null
-	if [[ $? -ne 0 ]]; then
-		#statements
-		useradd -s /sbin/nologin nginx
-	fi
-	wget http://nginx.org/download/nginx-1.16.1.tar.gz && tar -zxvf nginx-1.16.1.tar.gz && cd nginx-1.16.1.tar.gz 
-	yum install gcc gcc-c++ pcre pcre-devel zlib zlib-devel openssl openssl-devel -y
-	./configure --prefix=/usr/local/nginx --without-http_memcached_module --user=www --group=www --with-http_stub_status_module --with-http_ssl_module --with-http_gzip_static_module
-	make && make install 
-	/usr/local/nginx/sbin/nginx
+  id nginx &>/dev/null
+  if [[ $? -ne 0 ]]; then
+    #statements
+    useradd -s /sbin/nologin nginx
+  fi
+  wget http://nginx.org/download/nginx-1.16.1.tar.gz && tar -zxvf nginx-1.16.1.tar.gz && cd nginx-1.16.1 
+  yum install gcc gcc-c++ make pcre pcre-devel zlib zlib-devel openssl openssl-devel -y
+  ./configure --prefix=/usr/local/nginx --without-http_memcached_module --user=www --group=www --with-http_stub_status_module --with-http_ssl_module --with-http_gzip_static_module
+  make && make install 
+  /usr/local/nginx/sbin/nginx
 echo '#!/bin/sh
 #
 # nginx - this script starts and stops the nginx daemon
@@ -151,8 +151,44 @@ systemctl start nginx
 exit 2
 }
 
-#选择安装的函数
-while:
+#安装mysql5.7
+install_mysql()
+{
+    wget https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+    rpm -ivh mysql57-community-release-el7-9.noarch.rpm
+    yum install mysql-server -y
+    systemctl start mysqld
+    sleep 2
+
+    defaultmysqlpwd=`grep 'temporary password' /var/log/mysqld.log | awk -F"root@localhost: " '{ print $2}' `
+    mysql -uroot -p<<EOF
+    ${defaultmysqlpwd}
+    set global validate_password_policy = 0;
+    SET PASSWORD = PASSWORD('19910901');
+    grant all privileges on *.* to root@'%' identified by '19910901';
+EOF
+
+    sleep 2
+    systemctl restart mysqld
+
+    exit 2
+
+}
+
+#安装php7.0
+install_php()
+{
+   yum -y install epel-release 
+   rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+   yum install php70w-common php70w-fpm php70w-opcache php70w-gd php70w-mysqlnd php70w-mbstring php70w-pecl-redis php70w-pecl-memcached php70w-devel -y
+   systemctl start php-fpm
+   #可安装扩展
+   #php-api, php-bz2, php-calendar, php-ctype, php-curl, php-date, php-exif, php-fileinfo, php-filter, php-ftp, php-gettext, php-gmp, php-hash, php-iconv, php-json, php-libxml, php-openssl, php-pcre, php-pecl-Fileinfo, php-pecl-phar, php-pecl-zip, php-reflection, php-session, php-shmop, php-simplexml, php-sockets, php-spl, php-tokenizer, php-zend-abi, php-zip, php-zlib
+   exit 2
+}
+#选择安装的函数 
+while :
 do
 menu
 choice
