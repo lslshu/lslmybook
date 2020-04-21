@@ -159,17 +159,14 @@ install_mysql()
     yum install mysql-server -y
     systemctl start mysqld
     sleep 2
-
-    defaultmysqlpwd=`grep 'temporary password' /var/log/mysqld.log | awk -F"root@localhost: " '{ print $2}' `
-    mysql -uroot -p<<EOF
-    ${defaultmysqlpwd}
-    set global validate_password_policy = 0;
-    SET PASSWORD = PASSWORD('19910901');
-    grant all privileges on *.* to root@'%' identified by '19910901';
-EOF
-
-    sleep 2
-    systemctl restart mysqld
+#5.5版本下可以实现
+    #defaultmysqlpwd=`grep 'temporary password' /var/log/mysqld.log | awk -F"root@localhost: " '{ print $2}' `
+    #mysql -uroot -p${defaultmysqlpwd}<<EOF
+    #set global validate_password_policy = 0;
+    #SET PASSWORD = PASSWORD('19910901');
+    #grant all privileges on *.* to root@'%' identified by '19910901';
+#EOF
+#systemctl restart mysqld
 
     exit 2
 
