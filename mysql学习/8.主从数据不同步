@@ -1,3 +1,34 @@
+--------------------------------------
+数据库同步
+--------------------------------------
+master
+
+vim /etc/my.cnf
+server-id=1
+log_bin=master-bin
+#不同步的数据库
+binlog-ignore-db = mysql
+binlog-ignore-db = test
+binlog-ignore-db = information_schema
+#只同步的数据库
+binlog-do-db = binlog-do-db
+
+mysql -r -p
+grant replication slave on *.* to user@'ip' identified by 'password';
+systemctl restart mysqld 
+show master status;
+
+
+backup
+vim /etc/my.cnf
+server-id=2
+mysql -r -p
+change master to master_host='ip',master_port=3306,master_user='user',master_password='password';
+start slave;
+
+----------------------------------------
+主从数据不同步
+----------------------------------------
 先上Master库： 
 mysql>show processlist; 查看下进程是否Sleep太多。发现很正常。 
 show master status; 也正常。 

@@ -34,7 +34,7 @@ topics:
 
    2.创建，删除，查看数据库
    
-   mysql> create database test_data;
+   mysql> create database test_data default charset utf8;
    #创建默认字符集的数据库（默认是拉丁字符集）
    Query OK, 1 row affected (0.02 sec)
    mysql> show databases like 'test%';
