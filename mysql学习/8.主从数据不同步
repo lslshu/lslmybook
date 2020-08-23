@@ -309,3 +309,17 @@ Slave_IO_Running: Yes
 Slave_SQL_Running: Yes 
 
 哈哈，完成同步。
+
+
+
+
+从库报错Last_IO_Error: Got fatal error 1236 from master
+从库
+show slave Status\G;
+stop slave;
+主库
+flush logs;
+show master status\G;
+从库
+start slave;
+show slave Status\G;
