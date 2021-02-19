@@ -37,6 +37,9 @@ set global validate_password_length=1;
 
 alter user 'root'@'localhost' identified by '123456';
 
+mysql8
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123456';
+
 2.建库和表
 
 创建库
