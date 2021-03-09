@@ -7,7 +7,7 @@ sudo yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 sudo yum -y install yum-utils
 sudo yum-config-manager --disable 'remi-php*'
 sudo yum-config-manager --enable remi-php80
-sudo yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+sudo yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json,common,opcache,dg,pecl-redis,pecl-memcached}
 
 2.centos8安装PHP8
 
@@ -35,4 +35,4 @@ sudo yum -y install php80
 使用以下命令安装其他PHP扩展：
 sudo yum install php80-php-xxx
 或者
-sudo yum install php80-php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+sudo yum install php80-php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json,common,opcache,dg,pecl-redis,pecl-memcached}
