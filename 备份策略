@@ -11,3 +11,8 @@ scp 文件名 admin@ip：文件位置
 
 还原单个数据库
 mysql -uroot -p mydb<目录
+
+
+禁用掉 Hyper-V： bcdedit /set hypervisorlaunchtype off 然后重启电脑，再运行 vagrant up 就成功了
+
+打开 Hyper-V：bcdedit /set hypervisorlaunchtype auto 需要重启电脑
