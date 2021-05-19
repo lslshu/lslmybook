@@ -1,0 +1,41 @@
+1.编写hello world脚本
+
+#！bin/bash
+echo "Hello world"
+
+2.通过位置变量创建liunx系统账户及密码
+
+#！bin/bash
+# 通过位置变量创建 Linux 系统账户及密码
+#$1 是执行脚本的第一个参数,$2 是执行脚本的第二个参数
+useradd "$1"
+echo "$2" | passwd --stdin "$1"
+
+3.备份日志
+
+#！bin/bash
+# 每周 5 使用 tar 命令备份/var/log 下的所有日志文件
+# vim  /root/logbak.sh
+# 编写备份脚本,备份后的文件名包含日期标签,防止后面的备份将前面的备份数据覆盖
+# 注意 date 命令需要使用反引号括起来,反引号在键盘<tab>键上面
+tar	-czf	log-`date +%Y%m%d`.tar.gz	/var/log
+
+# crontab ‐e	#编写计划任务,执行备份脚本
+00	03	*	*	5	/root/logbak.sh
+
+4.一键部署lnmp
+
+#！bin/bash
+# 一键部署 LNMP(RPM 包版本)
+# 使用 yum 安装部署 LNMP,需要提前配置好 yum 源,否则该脚本会失败
+# 本脚本使用于 centos7.2 或 RHEL7.2
+yum install httpd -y
+yum install mariadb mariadb-devel mariadb-server -y
+yum install php php-mysql -y
+
+systemctl start httpd mariadb
+systemctl enable httpd mariadb
+
+5.监控内存和磁盘容量，小于给定值时报警
+# 实时监控本机内存和硬盘剩余空间,剩余内存小于500M、根分区剩余空间小于1000M时,发送报警邮件给root管理员
+# 提取根分区剩余空间
