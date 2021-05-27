@@ -956,3 +956,71 @@ do
         fi
         sleep 5
 done
+
+47.自动添加防火墙规则,开启某些服务或端口(适用于 RHEL7)
+#!/bin/bash
+# 自动添加防火墙规则,开启某些服务或端口(适用于 RHEL7)
+# 设置变量定义需要添加到防火墙规则的服务和端口号
+# 使用 firewall‐cmd ‐‐get‐services 可以查看 firewall 支持哪些服务
+service="nfs http ssh"
+port="80 22 8080"
+#循环将每个服务添加到防火墙规则中
+for i in $service
+do
+  echo "Adding $i service to firewall"
+  firewall-cmd  --add-service=${i}
+done
+
+#循环将每个端口添加到防火墙规则中
+for i in $port
+do
+  echo "Adding $i port to firewall"
+  firewall-cmd --add-port=${i}/tcp 
+done
+#将以上设置的临时防火墙规则,转换为永久有效的规则(确保重启后有效)
+firewall-cmd --runtime-to-permanent
+
+48.使用脚本自动创建逻辑卷
+#!/bin/bash
+# 使用脚本自动创建逻辑卷 
+# 清屏,显示警告信息,创建将磁盘转换为逻辑卷会删除数据
+
+clear
+echo -e "\033[32m           !!!!!!警告(Warning)!!!!!!\033[0m"
+echo
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "脚本会将整个磁盘转换为 PV,并删除磁盘上所有数据!!!"
+echo "This Script will destroy all data on the Disk"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
+echo
+read -p "请问是否继续 y/n?:" sure
+# 测试用户输入的是否为 y,如果不是则退出脚本
+[ $sure != y ] && exit
+# 提示用户输入相关参数(磁盘、卷组名称等数据),并测试用户是否输入了这些值,如果没有输入,则脚本退出
+read -p "请输入磁盘名称,如/dev/vdb:" disk
+[ -z $disk ] && echo "没有输入磁盘名称" && exit
+read -p "请输入卷组名称:" vg_name
+[ -z $vg_name ] && echo "没有输入卷组名称" && exit
+read -p "请输入逻辑卷名称:" lv_name
+[ -z $lv_name ] && echo "没有输入逻辑卷名称" && exit
+read -p "请输入逻辑卷大小:" lv_size
+[ -z $lv_size ] && echo "没有输入逻辑卷大小" && exit
+
+# 使用命令创建逻辑卷
+pvcreate $disk
+vgcreate $vg_name $disk 
+lvcreate -L ${lv_size}M -n ${lv_name} ${vg_name}
+
+49.显示 CPU 厂商信息
+#!/bin/bash
+# 显示 CPU 厂商信息
+awk '/vendor_id/{print $3}' /proc/cpuinfo | uniq
+
+50.删除某个目录下大小为 0 的文件
+#!/bin/bash
+# 删除某个目录下大小为 0 的文件
+#/var/www/html 为测试目录,脚本会清空该目录下所有 0 字节的文件
+dir="/var/www/html"
+find $dir -type f -size 0 -exec rm -rf {} \;
+
+51.查找 Linux 系统中的僵尸进程
